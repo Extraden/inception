@@ -1,0 +1,8 @@
+services:
+  nginx:
+    build:
+      context: ./requirements/nginx
+    image: inception-nginx
+    container_name: nginx
+    ports:
+      - "443:443"
