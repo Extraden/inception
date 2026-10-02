@@ -6,3 +6,19 @@ services:
     container_name: nginx
     ports:
       - "443:443"
+
+  mariadb:
+    build:
+      context: ./requirements/mariadb
+    image: inception-mariadb
+    container_name: mariadb
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+volumes:
+  mariadb_data:

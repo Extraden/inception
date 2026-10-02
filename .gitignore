@@ -1,5 +1,6 @@
 # Secrets
 secrets/*.txt
+*.env
 
 # Editor / OS junk
 *.swp
