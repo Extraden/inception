@@ -1,0 +1,11 @@
+# Secrets
+secrets/*.txt
+
+# Editor / OS junk
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Local temporary files
+*.log
