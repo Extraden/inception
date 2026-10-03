@@ -4,18 +4,22 @@ services:
       context: ./requirements/nginx
     image: inception-nginx
     container_name: nginx
+    restart: always
     depends_on:
       - wordpress
     ports:
       - "443:443"
     volumes:
       - wordpress_data:/var/www/html:ro
+    networks:
+      - inception
 
   mariadb:
     build:
       context: ./requirements/mariadb
     image: inception-mariadb
     container_name: mariadb
+    restart: always
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
@@ -23,12 +27,15 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     volumes:
       - mariadb_data:/var/lib/mysql
+    networks:
+      - inception
 
   wordpress:
     build:
       context: ./requirements/wordpress
     image: inception-wordpress
     container_name: wordpress
+    restart: always
     depends_on:
       - mariadb
     environment:
@@ -48,8 +55,25 @@ services:
       WP_USER_EMAIL: ${WP_USER_EMAIL}
     volumes:
       - wordpress_data:/var/www/html
+    networks:
+      - inception
 
 
 volumes:
   mariadb_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/dsemenov/data/mariadb
+
   wordpress_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/dsemenov/data/wordpress
+
+networks:
+  inception:
+    driver: bridge
