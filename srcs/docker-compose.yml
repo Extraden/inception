@@ -2,7 +2,7 @@ services:
   nginx:
     build:
       context: ./requirements/nginx
-    image: inception-nginx
+    image: nginx:inception
     container_name: nginx
     restart: always
     depends_on:
@@ -17,7 +17,7 @@ services:
   mariadb:
     build:
       context: ./requirements/mariadb
-    image: inception-mariadb
+    image: mariadb:inception
     container_name: mariadb
     restart: always
     environment:
@@ -33,7 +33,7 @@ services:
   wordpress:
     build:
       context: ./requirements/wordpress
-    image: inception-wordpress
+    image: wordpress:inception
     container_name: wordpress
     restart: always
     depends_on:
