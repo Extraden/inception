@@ -1,51 +1,38 @@
 #!/bin/bash
 set -e
 
-mkdir -p /var/lib/mysql
-chown -R mysql:mysql /var/lib/mysql
-
-mkdir -p /run/mysqld
-chown mysql:mysql /run/mysqld
+mkdir -p /var/lib/mysql /run/mysqld
+chown -R mysql:mysql /var/lib/mysql /run/mysqld
 
 if [ ! -d "/var/lib/mysql/mysql" ]; then
-	mariadb-install-db \
-		--user=mysql \
-		--datadir=/var/lib/mysql
+    : "${MYSQL_DATABASE:?Missing MYSQL_DATABASE}"
+    : "${MYSQL_USER:?Missing MYSQL_USER}"
+    : "${MYSQL_PASSWORD:?Missing MYSQL_PASSWORD}"
+    : "${MYSQL_ROOT_PASSWORD:?Missing MYSQL_ROOT_PASSWORD}"
 
-	mariadbd \
-		--user=mysql \
-		--datadir=/var/lib/mysql \
-		--skip-networking &
+    mariadb-install-db \
+        --user=mysql \
+        --datadir=/var/lib/mysql \
+        --skip-test-db
 
-	MARIADB_PID=$!
+    mariadbd --user=mysql --datadir=/var/lib/mysql --bootstrap <<EOF
+FLUSH PRIVILEGES;
 
-	until mariadb-admin -u root ping --silent; do
-		sleep 1
-	done
-
-	mariadb -u root << EOF
 CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;
 
 CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%'
 IDENTIFIED BY '${MYSQL_PASSWORD}';
 
-GRANT ALL PRIVILEGES
-ON \`${MYSQL_DATABASE}\`.*
+GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.*
 TO '${MYSQL_USER}'@'%';
 
 ALTER USER 'root'@'localhost'
 IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
 
 DROP USER IF EXISTS ''@'localhost';
-DROP USER IF EXISTS ''@'${HOSTNAME}';
-DROP DATABASE IF EXISTS test;
 
 FLUSH PRIVILEGES;
-
-SHUTDOWN;
 EOF
-
-	wait "$MARIADB_PID"
 fi
 
 exec "$@"
