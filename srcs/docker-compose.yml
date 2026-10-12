@@ -61,18 +61,7 @@ services:
 
 volumes:
   mariadb_data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /home/dsemenov/data/mariadb
-
   wordpress_data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /home/dsemenov/data/wordpress
 
 networks:
   inception:
