@@ -6,14 +6,25 @@ mkdir -p /var/www/html
 
 echo "Waiting for MariaDB..."
 
-until mariadb-admin ping \
-	-h mariadb \
-	-u "${MYSQL_USER}" \
-	-p"${MYSQL_PASSWORD}" \
-	--silent
-do
-	sleep 1
+db_ready=0
+
+for attempt in {1..60}; do
+    if MYSQL_PWD="${MYSQL_PASSWORD}" mariadb \
+        --connect-timeout=2 \
+        -h mariadb \
+        -u "${MYSQL_USER}" \
+        "${MYSQL_DATABASE}" \
+        -e "SELECT 1;" >/dev/null 2>&1; then
+        db_ready=1
+        break
+    fi
+    sleep 1
 done
+
+if [ "$db_ready" -ne 1 ]; then
+    echo "ERROR: MariaDB not ready after 60 attempts" >&2
+    exit 1
+fi
 
 echo "MariaDB is ready."
 
